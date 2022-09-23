@@ -29,8 +29,8 @@ test("Adds ship correctly", () => {
   );
   gameBoard.addShip(ship);
   let hasShip = true;
-  for (let i = ship.coord.startX; i <= ship.coord.endX; i++) {
-    for (let j = ship.coord.startY; j <= ship.coord.endY; j++) {
+  for (let i = ship.coord.startX; i < ship.coord.endX; i++) {
+    for (let j = ship.coord.startY; j < ship.coord.endY; j++) {
       if (!gameBoard.board[i][j].hasShip) {
         console.log(object);
         hasShip = false;
