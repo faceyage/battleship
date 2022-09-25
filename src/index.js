@@ -1,7 +1,7 @@
 import "./style.css";
 //don't edit above
 import Player from "./factories/player";
-import Gameboard from "./factories/gameboard";
+import Ship from "./factories/ship";
 
 //creates basic html structure
 //immediately invoked
@@ -21,8 +21,8 @@ import Gameboard from "./factories/gameboard";
 //mostly dom manipulation on gameboard
 class Game {
   constructor() {
-    this.player = null;
-    this.ai = null;
+    this.player = new Player(false, "Player1", true);
+    this.ai = new Player(false, "Player1", false);
   }
 
   aiPlay() {
@@ -38,6 +38,65 @@ class Game {
     const gameArea = document.querySelector("#player_board");
     const sqr = gameArea.querySelector(`[data-x='${x}'][data-y='${y}']`);
     this.attack(sqr, this.player, coord[0], coord[1]);
+  }
+
+  //initialize placeship stage before starting game
+  placeShips() {
+    const gameArea = document.querySelector(".gameArea");
+    gameArea.innerHTML = "";
+    this.createGameBoard(this.player);
+
+    const ship1 = this.createDraggableShip(1, 4);
+    const ship2 = this.createDraggableShip(2, 3);
+
+    gameArea.appendChild(ship1);
+    gameArea.appendChild(ship2);
+  }
+
+  //add added ship to board in html
+  addShipToBoard(player, ship) {
+    const { startX, startY, endX, endY } = ship.coord;
+    const boardSelector = player.isAI ? "#ai_board" : "#player_board";
+    const board = document.querySelector(boardSelector);
+    for (let i = startX; i < endX; i++) {
+      for (let j = startY; j < endY; j++) {
+        const sqr = board.querySelector(`[data-x='${i}'][data-y='${j}']`);
+        sqr.classList.add("hasShip");
+      }
+    }
+  }
+
+  createDraggableShip(quantity, length) {
+    const container = document.createElement("div");
+    container.classList.add("container");
+
+    const quantityElement = document.createElement("div");
+    quantityElement.textContent = `${quantity}X`;
+    container.appendChild(quantityElement);
+
+    const ship = document.createElement("div");
+    ship.dataset.length = length;
+    ship.dataset.isvertical = false;
+    ship.classList.add("ship");
+    ship.setAttribute("draggable", "true");
+
+    ship.ondragenter = () => {
+      ship.classList.add("dragging");
+    };
+
+    ship.ondragend = () => {
+      ship.classList.remove("dragging");
+    };
+    container.appendChild(ship);
+
+    //to create length of ship
+    for (let i = 0; i < length; i++) {
+      const part = document.createElement("div");
+      part.classList.add("part");
+      ship.appendChild(part);
+    }
+
+    return container;
   }
 
   startGame() {
@@ -71,42 +130,70 @@ class Game {
     this.startGame();
   }
 
-  //create html game board element
+  //creates and adds game board on html
   createGameBoard(player) {
     const board = player.gameBoard.board;
     const gameArea = document.querySelector(".gameArea");
     const gameBoard = document.createElement("div");
     gameBoard.classList.add("gameboard");
-    if (player.isAI) gameBoard.id = "ai_board";
-    else gameBoard.id = "player_board";
+    gameBoard.id = player.isAI ? "ai_board" : "player_board";
+
     for (let i = 0; i < board.length; i++) {
       const column = document.createElement("div");
       column.classList.add("column");
       gameBoard.appendChild(column);
       for (let j = 0; j < board[i].length; j++) {
         const sqr = document.createElement("div");
-        if (board[i][j].isShot) {
-          sqr.classList.add("shot");
+        sqr.classList.add("sqr");
+        //add style for only hovering ai's board
+        if (player.isAI) {
         }
         if (!player.isAI && board[i][j].hasShip) {
           sqr.classList.add("hasShip");
         }
-        sqr.classList.add("sqr");
         sqr.dataset.x = i;
         sqr.dataset.y = j;
+        sqr.ondragover = () => {
+          if (!player.isAI) this.dragging(sqr, player, i, j);
+          sqr.classList.add("hover");
+        };
+
+        sqr.ondragleave = () => {
+          sqr.classList.remove("hover");
+        };
         sqr.onclick = () => {
-          if (player.isAI) {
-            //after player attacks to ai create play ai
-            //play ai if attack is sucessfull
-            if (this.player.isMyTurn) {
-              if (this.attack(sqr, player, i, j)) this.aiPlay();
-            }
+          //for attacking to enemy
+          if (player.isAI && this.player.isMyTurn && !board[i][j].isShot) {
+            this.attack(sqr, player, i, j);
+            //after player attacks to ai playAI
+            this.aiPlay();
           }
         };
         column.appendChild(sqr);
       }
     }
     gameArea.appendChild(gameBoard);
+  }
+
+  //ondrag function for square
+  dragging(sqr, player, i, j) {
+    //gets ships dragging
+    const ship = document.querySelector(".dragging");
+    const length = Number(ship.dataset.length);
+    const isVertical = ship.dataset.isvertical === "true" ? true : false;
+    const newShip = new Ship(length, i, j, isVertical);
+
+    //if ship is in available space place it
+    const canPlace = player.gameBoard.canPlace(i, j, newShip.coord.endX, newShip.coord.endY);
+    ship.ondragend = () => {
+      ship.classList.remove("dragging");
+      if (canPlace) {
+        player.gameBoard.addShip(newShip);
+        this.addShipToBoard(player, newShip);
+      } else {
+        console.log("You can't place ship there");
+      }
+    };
   }
 
   //player is attacked player
@@ -166,4 +253,5 @@ class Game {
 }
 
 const game = new Game();
-game.startGame();
+game.placeShips();
+// game.startGame();
