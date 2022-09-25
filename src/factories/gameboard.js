@@ -57,24 +57,11 @@ class Gameboard {
       console.error("Ships length can't be above 9 or under 0");
     }
     while (true) {
-      let startX = Math.floor(Math.random() * 10);
-      let startY = Math.floor(Math.random() * 10);
-      let endX = isVertical ? startX + 1 : startX + length;
-      let endY = isVertical ? startY + length : startY + 1;
-      //out of board try create another one
-      if (endX > 9 || endY > 9) {
-        continue;
-      }
-      let positionAvailable = true;
-      loop1: for (let i = startX; i < endX; i++) {
-        for (let j = startY; j < endY; j++) {
-          //has ship in location break loop and try to create another coordinate
-          if (this.board[i][j].hasShip) {
-            positionAvailable = false;
-            break loop1;
-          }
-        }
-      }
+      const startX = Math.floor(Math.random() * 10);
+      const startY = Math.floor(Math.random() * 10);
+      const endX = isVertical ? startX + 1 : startX + length;
+      const endY = isVertical ? startY + length : startY + 1;
+      const positionAvailable = this.canPlace(startX, startY, endX, endY);
       if (positionAvailable) {
         const ship = new Ship(length, startX, startY, isVertical);
         return ship;
@@ -86,6 +73,27 @@ class Gameboard {
   addRandomShip(length, isVertical) {
     const ship = this.#getRandomShip(length, isVertical);
     this.addShip(ship);
+  }
+
+  //checks if ship can place without cross the board
+  canPlace(startX, startY, endX, endY) {
+    const coords = { startX, startY, endX, endY };
+    //checks if coordinates inside of board
+    for (const key in coords) {
+      const coord = coords[key];
+      if (!(coord >= 0 && coord <= 10)) {
+        return false;
+      }
+    }
+    //checks if has ship inside of coordinates
+    for (let i = startX; i < endX; i++) {
+      for (let j = startY; j < endY; j++) {
+        if (this.board[i][j].hasShip) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
   //returns available unplayed positions in board
