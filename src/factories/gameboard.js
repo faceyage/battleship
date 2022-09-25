@@ -32,9 +32,10 @@ class Gameboard {
     if (this.board[x][y].isShot) {
       console.log("position already attacked!");
       return false;
+    } else {
+      this.board[x][y].isShot = true;
+      return true;
     }
-    this.board[x][y].isShot = true;
-    return true;
   }
 
   //checks if all ships are sunk
@@ -81,9 +82,23 @@ class Gameboard {
     }
   }
 
+  //adds random ship to board using getRandomShip private function
   addRandomShip(length, isVertical) {
     const ship = this.#getRandomShip(length, isVertical);
     this.addShip(ship);
+  }
+
+  //returns available unplayed positions in board
+  availablePositions() {
+    const arr = [];
+    for (let i = 0; i < this.board.length; i++) {
+      for (let j = 0; j < this.board[i].length; j++) {
+        if (!this.board[i][j].isShot) {
+          arr.push([i, j]);
+        }
+      }
+    }
+    return arr;
   }
 }
 
