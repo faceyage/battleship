@@ -12,10 +12,13 @@ html {
 
 :root {
   --primary-color: rgb(166, 155, 155);
+  --secondary-color: rgba(8, 255, 49, 0.851);
+  --text-color: white;
 }
 
 body {
   background-color: var(--primary-color);
+  color: var(--text-color);
 }
 /*  */
 
@@ -66,4 +69,41 @@ body {
 
 .miss {
   background-color: gray;
+}
+
+.gameOver {
+  width: 40%;
+  height: 40%;
+  background-color: var(--secondary-color);
+
+  position: absolute;
+  top: 25%;
+  left: 30%;
+
+  font-weight: bold;
+  font-size: 3rem;
+  border-radius: 1.2rem;
+  /* center text */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.btn {
+  width: 220px;
+  height: 80px;
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  font-weight: bold;
+  border-radius: 0.9rem;
+  border: none;
+  font-size: 25px;
+  margin-top: 20px;
+  cursor: pointer;
+}
+
+.blur {
+  filter: blur(8px);
+  pointer-events: none;
 }
