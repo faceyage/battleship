@@ -22,9 +22,17 @@ body {
 }
 /*  */
 
-.btn {
-  width: 120px;
-  height: 70px;
+/* Content */
+
+.content {
+  padding: 10px;
+}
+
+.logo {
+  font-family: "Courier New", Courier, monospace;
+  text-align: center;
+  font-weight: bold;
+  font-size: 60px;
 }
 
 /* Game area */

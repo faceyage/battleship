@@ -6,9 +6,16 @@ import Gameboard from "./factories/gameboard";
 //creates basic html structure
 //immediately invoked
 (function init() {
+  const content = document.querySelector(".content");
+  const logo = document.createElement("div");
+  logo.classList.add("logo");
+  logo.textContent = "BATTLESHIP";
+
   const gameArea = document.createElement("div");
   gameArea.classList.add("gameArea");
-  document.body.appendChild(gameArea);
+
+  content.appendChild(logo);
+  content.appendChild(gameArea);
 })();
 
 //mostly dom manipulation on gameboard
@@ -53,10 +60,11 @@ class Game {
   }
 
   restartGame() {
+    const content = document.querySelector(".content");
     const gameOver = document.querySelector(".gameOver");
     const gameArea = document.querySelector(".gameArea");
 
-    gameArea.classList.remove("blur");
+    content.classList.remove("blur");
     gameArea.innerHTML = "";
     gameOver.remove();
 
@@ -129,8 +137,8 @@ class Game {
   }
 
   writeWinner(name) {
-    const gameArea = document.querySelector(".gameArea");
-    gameArea.classList.add("blur");
+    const content = document.querySelector(".content");
+    content.classList.add("blur");
 
     const gameOver = document.createElement("div");
     gameOver.classList.add("gameOver");
