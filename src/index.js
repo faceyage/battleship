@@ -23,6 +23,7 @@ class Game {
   constructor() {
     this.player = new Player(false, "Player1", true);
     this.ai = new Player(false, "Player1", false);
+    this.isPlacingStage = true;
   }
 
   aiPlay() {
@@ -42,15 +43,47 @@ class Game {
 
   //initialize placeship stage before starting game
   placeShips() {
+    this.player = new Player(false, "Player1", true);
+    this.isPlacingStage = true;
+
     const gameArea = document.querySelector(".gameArea");
     gameArea.innerHTML = "";
     this.createGameBoard(this.player);
 
-    const ship1 = this.createDraggableShip(1, 4);
-    const ship2 = this.createDraggableShip(2, 3);
+    const ships = document.createElement("div");
+    ships.classList.add("ships");
+    gameArea.appendChild(ships);
 
-    gameArea.appendChild(ship1);
-    gameArea.appendChild(ship2);
+    const ship1 = this.createDraggableShip(5);
+    const ship2 = this.createDraggableShip(2);
+    const ship3 = this.createDraggableShip(4);
+    const ship4 = this.createDraggableShip(3);
+
+    ships.appendChild(ship1);
+    ships.appendChild(ship2);
+    ships.appendChild(ship3);
+    ships.appendChild(ship4);
+
+    const content = document.querySelector(".content");
+    const randomPlaceBtn = document.createElement("button");
+    randomPlaceBtn.classList.add("btn");
+    randomPlaceBtn.classList.add("randomPlaceBtn");
+    randomPlaceBtn.textContent = "Random Place";
+    content.appendChild(randomPlaceBtn);
+    randomPlaceBtn.onclick = () => {
+      const shipsElements = ships.querySelectorAll(".ship");
+      console.log(shipsElements);
+      shipsElements.forEach((ship) => {
+        console.log(ship);
+        const addedShip = this.player.gameBoard.addRandomShip(Number(ship.dataset.length), Math.random() < 0.5);
+        console.log(addedShip);
+        this.addShipToBoard(this.player, addedShip);
+        ship.remove();
+      });
+      ships.remove();
+      randomPlaceBtn.remove();
+      this.startGame();
+    };
   }
 
   //add added ship to board in html
@@ -66,28 +99,36 @@ class Game {
     }
   }
 
-  createDraggableShip(quantity, length) {
-    const container = document.createElement("div");
-    container.classList.add("container");
+  createDraggableShip(length) {
+    // const container = document.createElement("div");
+    // container.classList.add("container");
 
-    const quantityElement = document.createElement("div");
-    quantityElement.textContent = `${quantity}X`;
-    container.appendChild(quantityElement);
+    // const quantityElement = document.createElement("div");
+    // quantityElement.textContent = `${quantity}X`;
+    // container.appendChild(quantityElement);
 
     const ship = document.createElement("div");
     ship.dataset.length = length;
     ship.dataset.isvertical = false;
     ship.classList.add("ship");
     ship.setAttribute("draggable", "true");
+    ship.onclick = () => {
+      if (ship.classList.contains("vertical")) {
+        ship.classList.remove("vertical");
+        ship.dataset.isvertical = false;
+      } else {
+        ship.classList.add("vertical");
+        ship.dataset.isvertical = true;
+      }
+    };
 
-    ship.ondragenter = () => {
+    ship.ondragstart = () => {
       ship.classList.add("dragging");
     };
 
     ship.ondragend = () => {
       ship.classList.remove("dragging");
     };
-    container.appendChild(ship);
 
     //to create length of ship
     for (let i = 0; i < length; i++) {
@@ -96,18 +137,17 @@ class Game {
       ship.appendChild(part);
     }
 
-    return container;
+    return ship;
   }
 
   startGame() {
-    this.player = new Player(false, "Player1", true);
+    this.isPlacingStage = false;
     this.ai = new Player(true, "AI", false);
 
-    this.player.addSomeShip();
     this.ai.addSomeShip();
 
     //create game boards in html for ai and player
-    this.createGameBoard(this.player);
+    // this.createGameBoard(this.player);
     this.createGameBoard(this.ai);
   }
 
@@ -127,7 +167,7 @@ class Game {
     gameArea.innerHTML = "";
     gameOver.remove();
 
-    this.startGame();
+    this.placeShips();
   }
 
   //creates and adds game board on html
@@ -154,8 +194,10 @@ class Game {
         sqr.dataset.x = i;
         sqr.dataset.y = j;
         sqr.ondragover = () => {
-          if (!player.isAI) this.dragging(sqr, player, i, j);
-          sqr.classList.add("hover");
+          if (this.isPlacingStage) {
+            if (!player.isAI) this.dragging(sqr, player, i, j);
+            sqr.classList.add("hover");
+          }
         };
 
         sqr.ondragleave = () => {
@@ -187,9 +229,29 @@ class Game {
     const canPlace = player.gameBoard.canPlace(i, j, newShip.coord.endX, newShip.coord.endY);
     ship.ondragend = () => {
       ship.classList.remove("dragging");
+      //if can place ship add ship to board
       if (canPlace) {
-        player.gameBoard.addShip(newShip);
         this.addShipToBoard(player, newShip);
+        player.gameBoard.addShip(newShip);
+        ship.remove();
+        const ships = document.querySelectorAll(".ships > .ship");
+        if (ships.length === 0) {
+          const randomPlaceBtn = document.querySelector(".randomPlaceBtn");
+          randomPlaceBtn.remove();
+          const content = document.querySelector(".content");
+          const startGameBtn = document.createElement("button");
+          startGameBtn.classList.add("btn");
+          startGameBtn.classList.add("startGameBtn");
+          startGameBtn.textContent = "Start Game";
+          startGameBtn.onclick = () => {
+            const shipsContainer = document.querySelector(".ships");
+            shipsContainer.remove();
+            this.startGame();
+            startGameBtn.remove();
+          };
+          content.appendChild(startGameBtn);
+        }
+        console.log(`Remaining Ships length: ${ships.length}`);
       } else {
         console.log("You can't place ship there");
       }

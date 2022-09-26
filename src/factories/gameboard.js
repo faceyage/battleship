@@ -73,6 +73,7 @@ class Gameboard {
   addRandomShip(length, isVertical) {
     const ship = this.#getRandomShip(length, isVertical);
     this.addShip(ship);
+    return ship;
   }
 
   //checks if ship can place without cross the board
