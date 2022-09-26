@@ -16,10 +16,10 @@ class Player {
   }
 
   addSomeShip() {
-    this.gameBoard.addRandomShip(4, false);
+    this.gameBoard.addRandomShip(5, false);
+    this.gameBoard.addRandomShip(2, false);
+    this.gameBoard.addRandomShip(4, true);
     this.gameBoard.addRandomShip(3, false);
-    this.gameBoard.addRandomShip(2, true);
-    this.gameBoard.addRandomShip(1, false);
   }
 }
 
