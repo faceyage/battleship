@@ -108,6 +108,7 @@ body {
   font-size: 25px;
   margin-top: 20px;
   cursor: pointer;
+  text-align: center;
 }
 
 .blur {
@@ -131,21 +132,19 @@ body {
 
 /* style for draggable ships */
 
-.container {
+.ships {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: flex-start;
   gap: 20px;
   border-radius: 1.2rem;
 
   margin-left: 10px;
   border: none;
-  background-color: brown;
-  width: 400px;
-  height: 100px;
+  width: 700px;
+  height: 400px;
   font-weight: bold;
   font-size: large;
-  text-align: center;
   padding: 20px;
   margin-top: 10px;
 }
@@ -155,6 +154,11 @@ body {
   align-items: center;
 }
 
+.vertical {
+  flex-direction: column;
+  align-self: flex-start;
+}
+
 .part {
   width: 58px;
   height: 58px;
@@ -162,6 +166,9 @@ body {
   background-color: #475569;
 }
 
-.dragging {
-  background-color: red;
+.startGameBtn,
+.randomPlaceBtn {
+  background-color: var(--secondary-color);
+  position: relative;
+  left: 40%;
 }
